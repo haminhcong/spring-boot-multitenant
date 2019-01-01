@@ -1,5 +1,5 @@
 # spring-boot-multitenant
-This is a Spring Boot multi-tenant sample using multiple datasources to persist data in different schemas. 
+This is a Spring Boot multi-tenant sample using multiple datasources to persist data in different databases. 
 That is using the [Hibernate multi-tenancy support](https://docs.jboss.org/hibernate/orm/4.2/devguide/en-US/html/ch16.html) working with the separate database strategy.
 
 ## Compile and package
