@@ -1,0 +1,31 @@
+version: '2.3'
+
+services:
+
+  eurpoe_db:
+    container_name: europe-db
+    image: mariadb:10.3.8
+    environment:
+      MYSQL_ROOT_PASSWORD: europe_db
+      MYSQL_DATABASE: europe_db
+      MYSQL_USER: europe_db
+      MYSQL_PASSWORD: europe_db
+    volumes:
+      - ${PWD}/europe-db:/var/lib/mysql
+    ports:
+      - 3307:3306
+    restart: always
+
+  asia_db:
+    container_name: asia-db
+    image: mariadb:10.3.8
+    environment:
+      MYSQL_ROOT_PASSWORD: asia_db
+      MYSQL_DATABASE: asia_db
+      MYSQL_USER: asia_db
+      MYSQL_PASSWORD: asia_db
+    volumes:
+      - ${PWD}/asia-db:/var/lib/mysql
+    ports:
+      - 3308:3306
+    restart: always

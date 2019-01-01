@@ -1,72 +1,56 @@
 package demo.multitenant;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DataSourceInitializer;
-import org.springframework.jdbc.datasource.init.DatabasePopulator;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.stereotype.Component;
-
-import javax.sql.DataSource;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TenantDataSource implements Serializable {
 
-    private HashMap<String, DataSource> dataSources = new HashMap<>();
+  private HashMap<String, DataSource> dataSources = new HashMap<>();
 
-    @Autowired
-    private DataSourceConfigRepository configRepo;
+  @Autowired
+  private MultiTenantConfigProperties multiTenantDataSourcesConfigProperties;
 
-    public DataSource getDataSource(String name) {
-        if (dataSources.get(name) != null) {
-            return dataSources.get(name);
-        }
-        DataSource dataSource = createDataSource(name);
-        if (dataSource != null) {
-            dataSources.put(name, dataSource);
-        }
-        return dataSource;
+
+  private DataSource getDataSource(DataSourceConfig config) {
+    String tenantName = config.getTenantName();
+    if (dataSources.get(tenantName) != null) {
+      return dataSources.get(tenantName);
     }
-
-    public Map<String, DataSource> getAll() {
-        List<DataSourceConfig> configList = configRepo.findAll();
-        Map<String, DataSource> result = new HashMap<>();
-        for (DataSourceConfig config : configList) {
-            DataSource dataSource = getDataSource(config.getName());
-            result.put(config.getName(), dataSource);
-        }
-        return result;
+    DataSource dataSource = createDataSource(config);
+    if (dataSource != null) {
+      dataSources.put(tenantName, dataSource);
     }
+    return dataSource;
+  }
 
-    private DataSource createDataSource(String name) {
-        DataSourceConfig config = configRepo.findByName(name);
-        if (config != null) {
-            DataSourceBuilder factory = DataSourceBuilder
-                    .create().driverClassName(config.getDriverClassName())
-                    .username(config.getUsername())
-                    .password(config.getPassword())
-                    .url(config.getUrl());
-            DataSource ds = factory.build();
-            if (config.getInitialize()) {
-                initialize(ds);
-            }
-            return ds;
-        }
-        return null;
+  Map<String, DataSource> getAll() {
+    List<DataSourceConfig> configList =
+        multiTenantDataSourcesConfigProperties.getDataSourceList();
+    Map<String, DataSource> result = new HashMap<>();
+    for (DataSourceConfig config : configList) {
+      DataSource dataSource = getDataSource(config);
+      result.put(config.getTenantName(), dataSource);
     }
+    return result;
+  }
 
-    private void initialize(DataSource dataSource) {
-        ClassPathResource schemaResource = new ClassPathResource("schema.sql");
-        ClassPathResource dataResource = new ClassPathResource("data.sql");
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator(schemaResource, dataResource);
-        populator.execute(dataSource);
+  private DataSource createDataSource(DataSourceConfig config) {
+    if (config != null) {
+      DataSourceBuilder factory = DataSourceBuilder
+          .create().driverClassName(config.getDriverClassName())
+          .username(config.getUsername())
+          .password(config.getPassword())
+          .url(config.getUrl());
+      return factory.build();
     }
-
+    return null;
+  }
 
 }

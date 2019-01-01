@@ -10,14 +10,14 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 
-import static demo.multitenant.MultiTenantConstants.DEFAULT_TENANT_ID;
-
 @Component
-public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDataSourceBasedMultiTenantConnectionProviderImpl {
-
-	@Autowired DataSource defaultDS;
+public class DataSourceBasedMultiTenantConnectionProviderImpl
+		extends AbstractDataSourceBasedMultiTenantConnectionProviderImpl {
 
 	@Autowired ApplicationContext context;
+
+	@Autowired
+	private MultiTenantConfigProperties multiTenantDataSourcesConfigProperties;
 
 	static Map<String, DataSource> map = new HashMap<>();
 
@@ -25,21 +25,28 @@ public class DataSourceBasedMultiTenantConnectionProviderImpl extends AbstractDa
 
 	@PostConstruct
 	public void load() {
-		map.put(DEFAULT_TENANT_ID, defaultDS);
 	}
 
 	@Override
 	protected DataSource selectAnyDataSource() {
-		return map.get(DEFAULT_TENANT_ID);
+		String defaultTenantName = multiTenantDataSourcesConfigProperties.getDefaultTenantName();
+		if (!init) {
+			initDataSources();
+		}
+		return map.get(defaultTenantName);
 	}
 
 	@Override
-	protected DataSource selectDataSource(String tenantIdentifier) {
+	protected DataSource selectDataSource(String tenantName) {
 		if (!init) {
-			init = true;
-			TenantDataSource tenantDataSource = context.getBean(TenantDataSource.class);
-			map.putAll(tenantDataSource.getAll());
+			initDataSources();
 		}
-		return map.get(tenantIdentifier);
+		return map.get(tenantName);
+	}
+
+	private void initDataSources(){
+		init = true;
+		TenantDataSource tenantDataSource = context.getBean(TenantDataSource.class);
+		map.putAll(tenantDataSource.getAll());
 	}
 }

@@ -23,13 +23,6 @@ public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver
 		return DEFAULT_TENANT_ID;
 	}
 
-	public void forceCurrentTenantIndetifier(String tenant) {
-		RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-		if (requestAttributes != null) {
-			requestAttributes.setAttribute(CURRENT_TENANT_IDENTIFIER, tenant, RequestAttributes.SCOPE_REQUEST);
-		}
-	}
-
 	@Override
 	public boolean validateExistingCurrentSessions() {
 		return true;

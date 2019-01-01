@@ -1,0 +1,27 @@
+# Datasource properties
+multi-tenant:
+  dataSourceList:
+      - tenant-name: europe
+        url: jdbc:mysql://127.0.0.1:3307/europe_db
+        username: europe_db
+        password: europe_db
+        driver-class-name: com.mysql.jdbc.Driver
+
+      - tenant-name: asia
+        url: jdbc:mysql://127.0.0.1:3308/asia_db
+        username: asia_db
+        password: asia_db
+        driver-class-name: com.mysql.jdbc.Driver
+  default-tenant-name: asia
+
+spring:
+  # ===============================
+  # = JPA configurations
+  # ===============================
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    database-platform: MYSQL
+    properties:
+      hibernate.dialect: org.hibernate.dialect.MySQL5InnoDBDialect
