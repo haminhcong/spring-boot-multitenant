@@ -5,13 +5,13 @@ multi-tenant:
         url: jdbc:mysql://127.0.0.1:3307/europe_db
         username: europe_db
         password: europe_db
-        driver-class-name: com.mysql.jdbc.Driver
+        driver-class-name: com.mysql.cj.jdbc.Driver
 
       - tenant-name: asia
         url: jdbc:mysql://127.0.0.1:3308/asia_db
         username: asia_db
         password: asia_db
-        driver-class-name: com.mysql.jdbc.Driver
+        driver-class-name: com.mysql.cj.jdbc.Driver
   default-tenant-name: asia
 
 spring:
